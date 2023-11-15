@@ -5,6 +5,7 @@ public class ShopEntity {
     private int max_pancake_per_customer;
     private int max_customers;
     private int max_slots;
+
     public ShopEntity() {
         this.max_pancakes = 12;
         this.max_pancake_per_customer = 5;

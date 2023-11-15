@@ -15,6 +15,7 @@ public class NonConcurrentShop {
 
             ShopEntity store = new ShopEntity();
 
+
             GeneralShopService service = new GeneralShopService();
 
 

@@ -59,6 +59,7 @@ public class RegistrationImpl {
                 System.out.println("Verification result: " + result);
             } else {
                 System.out.println("Validation failed:");
+
                 if (!usernameValidation.join()) {
                     System.out.println("Username: username cannot be empty");
                 }

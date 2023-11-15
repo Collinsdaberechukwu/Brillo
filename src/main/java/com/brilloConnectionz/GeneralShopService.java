@@ -31,6 +31,7 @@ public class GeneralShopService {
         for (int numOrder : num_orders) {
             totalOrderMade += numOrder;
         }
+
         if(totalOrderMade < max_pancakes){
             return max_pancakes - totalOrderMade;
         }
