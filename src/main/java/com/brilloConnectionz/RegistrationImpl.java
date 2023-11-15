@@ -54,6 +54,7 @@ public class RegistrationImpl {
                 }
                 scanner.close();
 
+
                 String result = Objects.equals(verifyJWT(token), username)?"verification pass":"verification fails";
                 System.out.println("Verification result: " + result);
             } else {

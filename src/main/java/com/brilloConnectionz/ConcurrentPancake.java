@@ -8,49 +8,45 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class ConcurrentPancake {
-    private static final int MAX_SHOPKEEPER = 12;
-    private static final int MAX_USERS = 5;
+    public static void main(String[] args) {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            int slot = i + 1;
+            System.out.println("Slot: " + slot);
+            System.out.println("Starting Time: " + getStartTime(slot) + " seconds");
+            System.out.println("Ending Time: " + getEndTime(slot) + " seconds");
 
-        System.out.println("Starting time: " + getCurrentTime());
+            ShopEntity store = new ShopEntity();
+            GeneralShopService service = new GeneralShopService();
 
-        Random random = new Random();
-        CompletableFuture<Integer> shopkeeperFuture = CompletableFuture.supplyAsync(() -> random.nextInt(MAX_SHOPKEEPER + 1));
-        CompletableFuture<List<Integer>> userFutures = CompletableFuture.supplyAsync(()-> new ArrayList<>(3));
-        int NUMBER_OF_USERS = 3;
-        for (int i = 0; i < NUMBER_OF_USERS; i++) {
-            userFutures.get().add(i,CompletableFuture.supplyAsync(() -> random.nextInt(MAX_USERS + 1)).get());
-        }
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(shopkeeperFuture, userFutures);
-        allOf.join();
+            CompletableFuture<Integer> pancakesMadeFuture = CompletableFuture.supplyAsync(() -> service.makePancake(store.getMax_pancakes()));
+            CompletableFuture<int[]> userOrdersFuture = CompletableFuture.supplyAsync(() -> service.orderMade(new int[store.getMax_customers()], store.getMax_pancake_per_customer()));
 
-        int shopkeeperPancakes = shopkeeperFuture.get();
-        int totalUserPancakes = 0;
-        for (int i = 0; i < NUMBER_OF_USERS; i++) {
-            totalUserPancakes += userFutures.get().get(i);
-        }
-
-        int wastedPancakes = Math.max(0, shopkeeperPancakes - totalUserPancakes);
-        boolean metAllNeeds = totalUserPancakes <= shopkeeperPancakes;
-
-        System.out.println("Ending time: " + getCurrentTime());
-        System.out.println("Shopkeeper pancakes: " + shopkeeperPancakes);
-        System.out.print("User pancakes: ");
-        for (int i = 0; i < NUMBER_OF_USERS; i++) {
             try {
-                System.out.print(userFutures.get().get(i) + " ");
+                int pancakesMade = pancakesMadeFuture.get();
+                int[] userOrders = userOrdersFuture.get();
+
+                boolean ordersMade = service.metAllOrders(userOrders, pancakesMade);
+                int wastedPancakes = service.wastedPancakes(userOrders, pancakesMade);
+                int ordersNotMet = service.ordersNotMet(userOrders, pancakesMade);
+
+                System.out.println("Shopkeeper met the needs of all users: " + ordersMade);
+                System.out.println("Pancakes wasted: " + wastedPancakes);
+                System.out.println("Unmet orders: " + ordersNotMet);
+                System.out.println("-------------------------------------");
+                System.out.println();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println();
-        System.out.println("Met all needs: " + metAllNeeds);
-        System.out.println("Wasted pancakes: " + wastedPancakes);
-        System.out.println("Unmet orders: " + Math.max(0, totalUserPancakes - shopkeeperPancakes));
     }
 
-    private static String getCurrentTime() {
-        return LocalDateTime.now().toString();    }
+    private static int getStartTime(int slot) {
+        return (slot - 1) * 30;
+    }
+
+    private static int getEndTime(int slot) {
+        return slot * 30;
+    }
 }
 
